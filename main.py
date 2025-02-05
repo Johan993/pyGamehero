@@ -32,6 +32,7 @@ all_units = []
 font = pygame.font.SysFont("Arial", 16)
 big_font = pygame.font.SysFont("Arial", 48)
 
+
 def load_map(filename):
     with open(filename, 'r') as f:
         map_data = json.load(f)
@@ -84,6 +85,7 @@ def show_map_choice_screen():
                 elif event.key == K_3:
                     return load_map('map3.json')
 
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -99,9 +101,11 @@ def load_image(name, colorkey=None):
         image = image.convert_alpha()
     return image
 
+
 def terminate():
     pygame.quit()
     sys.exit()
+
 
 def show_intro_screen():
     intro_text = ["Здравствуйте"]
@@ -128,6 +132,7 @@ def show_intro_screen():
             elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 waiting_for_input = False
 
+
 class HexMap:
     def __init__(self, rows, cols, tile_size, obstacle_chance=0.1):
         global map_data
@@ -141,7 +146,6 @@ class HexMap:
             for col in range(self.cols):
                 if random.random() < obstacle_chance:
                     self.obstacles.add((col, row))
-
 
     def generate_map(self):
         map_data = []
@@ -197,6 +201,7 @@ class HexMap:
                     min_distance = distance
                     closest_hex = (col_idx, row_idx)
         return closest_hex
+
 
 class Hero:
     def __init__(self, x, y, color=BLUE):
@@ -302,7 +307,6 @@ class Hero:
         self.path = self.a_star_search((self.x, self.y), target)
         if self.path:
             self.moving = True
-            # Берем первый шаг пути (и удаляем его из списка)
             next_cell = self.path.pop(0)
             self.set_target_pixel(next_cell)
 
@@ -314,23 +318,19 @@ class Hero:
         dy = self.target_pixel_y - self.pixel_y
         distance = math.hypot(dx, dy)
 
-        # Если мы почти достигли текущей цели, фиксируем позицию
         if distance < self.speed:
             self.pixel_x = self.target_pixel_x
             self.pixel_y = self.target_pixel_y
-            # Обновляем клеточные координаты, подбирая клетку с таким центром
             for row in range(len(map_data)):
                 for col in range(len(map_data[row])):
                     center_x, center_y = map_data[row][col]
                     if center_x == self.target_pixel_x and center_y == self.target_pixel_y:
                         self.x, self.y = col, row
                         break
-            # Если в пути ещё есть шаги, задаем следующий шаг
             if self.path:
                 next_cell = self.path.pop(0)
                 self.set_target_pixel(next_cell)
             else:
-                # Если путь пройден полностью — останавливаем движение
                 self.moving = False
         else:
             dx_norm = dx / distance
@@ -352,10 +352,11 @@ class Hero:
     def attack(self, target):
         target.hp -= self.damage
 
+
 class Enemy(Hero):
     def __init__(self, x, y, color=(255, 0, 0)):
         super().__init__(x, y, color)
-        self.image = load_image('Idle (2).png')  # Загрузка изображения для врага
+        self.image = load_image('Idle (2).png')
 
     def draw(self, screen, map_data):
         screen.blit(self.image,
@@ -434,7 +435,9 @@ class Enemy(Hero):
             self.pixel_x += dx_norm * self.speed
             self.pixel_y += dy_norm * self.speed
 
+
 show_intro_screen()
+
 map_data = show_map_choice_screen()
 hex_map, heroes, enemies, all_units = create_game_from_map(map_data)
 
